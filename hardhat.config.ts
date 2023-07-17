@@ -58,7 +58,7 @@ const config: HardhatUserConfig = {
     proxy: getNetwork1('http://localhost:8545'),
     mantle: getNetwork1('https://rpc.mantle.xyz'),
     zetaAthens: getNetwork1('https://zetachain-athens-evm.blockpi.network/v1/rpc/public'),
-    bifrostt: getNetwork1('https://public-01.mainnet.bifrostnetwork.com/rpc'),
+    bifrostt: getNetwork1('https://public-01.testnet.bifrostnetwork.com/rpc'),
   },
   mocha: {
     timeout: 10000
