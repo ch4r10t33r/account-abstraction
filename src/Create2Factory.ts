@@ -8,10 +8,10 @@ export class Create2Factory {
   factoryDeployed = false
 
   // from: https://github.com/Arachnid/deterministic-deployment-proxy
-  static readonly contractAddress = '0x4e59b44847b379578588920ca78fbf26c0b4956c'
-  static readonly factoryTx = '0xf8a58085174876e800830186a08080b853604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf31ba02222222222222222222222222222222222222222222222222222222222222222a02222222222222222222222222222222222222222222222222222222222222222'
-  static readonly factoryDeployer = '0x3fab184622dc19b6109349b94811493bf2a45362'
-  static readonly deploymentGasPrice = 100e9
+  static contractAddress = '0x1e8fda220759f2b4e3fa68b875c73e21fdc737ec'
+  static readonly factoryTx = '0xf8a78085e8d4a51000830186a08080b853604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf382f4f6a03b907605c26842388dafcf7ed3076a9e3e493f99ef2920fa0a1b16e881b22c48a0283eaf454fcf77f65e220c0c1a836105cf6a562cebca4a22517675c058fa7c76'
+  static readonly factoryDeployer = '0x538e86c294cd4d7870790B51Ab063B860Ca9cAEE'
+  static readonly deploymentGasPrice = 1000000000000;
   static readonly deploymentGasLimit = 100000
   static readonly factoryDeploymentFee = (Create2Factory.deploymentGasPrice * Create2Factory.deploymentGasLimit).toString()
 
@@ -98,11 +98,22 @@ export class Create2Factory {
     if (await this._isFactoryDeployed()) {
       return
     }
-    await (signer ?? this.signer).sendTransaction({
-      to: Create2Factory.factoryDeployer,
-      value: BigNumber.from(Create2Factory.factoryDeploymentFee)
-    })
-    await this.provider.sendTransaction(Create2Factory.factoryTx)
+
+    let userAddr = await this.signer.getAddress();
+
+    // build the transaction
+    const unsignedTx = {
+      from: userAddr,
+      value: 0,
+      gasLimit: 100000,
+      data: "0x604580600e600039806000f350fe7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3"
+    };
+
+    let tx = await this.signer.sendTransaction(unsignedTx);
+    let receipt = await tx.wait();
+
+    Create2Factory.contractAddress = receipt.contractAddress;
+
     if (!await this._isFactoryDeployed()) {
       throw new Error('fatal: failed to deploy deterministic deployer')
     }
