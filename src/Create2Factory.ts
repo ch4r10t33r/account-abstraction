@@ -100,7 +100,7 @@ export class Create2Factory {
     }
 
     let userAddr = await this.signer.getAddress();
-
+    
     // build the transaction
     const unsignedTx = {
       from: userAddr,
@@ -113,6 +113,7 @@ export class Create2Factory {
     let receipt = await tx.wait();
 
     Create2Factory.contractAddress = receipt.contractAddress;
+    console.log("Create2Factory Address: ", Create2Factory.contractAddress);
 
     if (!await this._isFactoryDeployed()) {
       throw new Error('fatal: failed to deploy deterministic deployer')
